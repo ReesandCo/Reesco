@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rees & Company</title>
+<style>
+  :root{--teal:#1D6E6E;--teal-dark:#0A4040;--terra:#C4622D;--parchment:#F5F0E8;--ink:#2C2A24;--ink-mid:#5F5C54;--ink-light:#9A9690;--border:rgba(44,42,36,0.12);}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:Georgia,'Times New Roman',serif;background:var(--parchment);color:var(--ink);}
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(10,64,64,0.9);backdrop-filter:blur(10px);}
+  .nav-logo{display:flex;align-items:center;gap:10px;}
+  .nav-logo-img{width:38px;height:38px;border-radius:50%;object-fit:cover;display:none;}
+  .nav-logo-fb{width:38px;height:38px;border-radius:50%;background:var(--parchment);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--teal-dark);}
+  .nav-title{font-size:15px;color:#fff;font-style:italic;}
+  .nav-links{display:flex;gap:24px;}
+  .nav-links a{color:rgba(255,255,255,0.7);text-decoration:none;font-family:sans-serif;font-size:13px;letter-spacing:.5px;transition:color .2s;cursor:pointer;}
+  .nav-links a:hover{color:#fff;}
+  .hero{position:relative;height:100vh;min-height:580px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;}
+  .hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.8s ease-in-out;}
+  .hero-slide.active{opacity:1;}
+  .hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,25,20,.45) 0%,rgba(5,25,20,.1) 45%,rgba(5,25,20,.65) 100%);}
+  .hero-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;}
+  .hero-logo-wrap{width:96px;height:96px;border-radius:50%;overflow:hidden;margin-bottom:22px;background:var(--parchment);display:flex;align-items:center;justify-content:center;}
+  .hero-logo-wrap img{width:100%;height:100%;object-fit:cover;display:none;}
+  .hero h1{font-size:clamp(38px,5.5vw,68px);color:#fff;letter-spacing:1px;text-shadow:0 2px 24px rgba(0,0,0,.5);margin-bottom:10px;}
+  .hero-tagline{font-size:16px;color:rgba(255,255,255,.75);font-style:italic;margin-bottom:36px;}
+  .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .btn{padding:11px 26px;border-radius:30px;font-family:sans-serif;font-size:13px;letter-spacing:.8px;cursor:pointer;border:none;transition:all .2s;}
+  .btn-primary{background:var(--terra);color:#fff;} .btn-primary:hover{background:#a84f22;}
+  .btn-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5);} .btn-outline:hover{background:rgba(255,255,255,.12);}
+  .hero-dots{position:absolute;bottom:52px;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:8px;}
+  .hero-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer;transition:background .3s;}
+  .hero-dot.active{background:#fff;}
+  .scroll-hint{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px;}
+  .scroll-hint span{font-family:sans-serif;font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1.5px;}
+  .scroll-arrow{width:18px;height:18px;border-right:1.5px solid rgba(255,255,255,.35);border-bottom:1.5px solid rgba(255,255,255,.35);transform:rotate(45deg);animation:bounce 1.6s infinite;}
+  @keyframes bounce{0%,100%{transform:rotate(45deg) translateY(0)}50%{transform:rotate(45deg) translateY(5px)}}
+  .prayer-section{background:var(--teal-dark);padding:54px 40px;}
+  .prayer-inner{max-width:880px;margin:0 auto;}
+  .eyebrow{font-family:sans-serif;font-size:10px;letter-spacing:2.5px;color:rgba(255,255,255,.4);margin-bottom:8px;}
+  .prayer-section h2{font-size:26px;color:#fff;margin-bottom:5px;}
+  .prayer-meta{font-family:sans-serif;font-size:12px;color:rgba(255,255,255,.4);margin-bottom:28px;}
+  .prayer-list{display:flex;flex-direction:column;gap:10px;}
+  .prayer-item{display:flex;align-items:flex-start;gap:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:14px 18px;}
+  .prayer-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+  .prayer-text{flex:1;font-size:15px;color:rgba(255,255,255,.88);line-height:1.5;}
+  .prayer-badge{font-family:sans-serif;font-size:10px;letter-spacing:.8px;padding:4px 11px;border-radius:20px;flex-shrink:0;border:none;cursor:default;}
+  .status-praying{background:rgba(186,117,23,.22);color:#FAC775;}
+  .status-answered{background:rgba(29,158,117,.22);color:#5DCAA5;}
+  .status-trust{background:rgba(127,119,221,.18);color:#AFA9EC;}
+  .updates-section{padding:64px 40px;max-width:1200px;margin:0 auto;}
+  .section-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:14px;}
+  .section-header h2{font-size:28px;}
+  .filter-tabs{display:flex;gap:8px;flex-wrap:wrap;}
+  .filter-tab{font-family:sans-serif;font-size:11px;letter-spacing:.8px;padding:5px 15px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--ink-mid);cursor:pointer;transition:all .2s;}
+  .filter-tab.active,.filter-tab:hover{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .updates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;}
+  .update-card{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:transform .2s,box-shadow .2s;cursor:pointer;}
+  .update-card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(0,0,0,.09);}
+  .card-img-wrap{position:relative;height:210px;overflow:hidden;}
+  .card-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+  .update-card:hover .card-img-wrap img{transform:scale(1.04);}
+  .card-img-ph{width:100%;height:100%;background:linear-gradient(135deg,#1D6E6E 0%,#0A4040 60%,#2D5A3A 100%);display:flex;align-items:center;justify-content:center;font-size:38px;opacity:.35;}
+  .card-tag{position:absolute;top:12px;left:12px;font-family:sans-serif;font-size:10px;letter-spacing:1px;padding:4px 10px;border-radius:20px;color:#fff;}
+  .card-ext{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.45);color:rgba(255,255,255,.8);font-family:sans-serif;font-size:10px;padding:3px 8px;border-radius:6px;}
+  .card-body{padding:18px 20px;}
+  .card-date{font-family:sans-serif;font-size:11px;color:var(--ink-light);letter-spacing:.5px;margin-bottom:8px;}
+  .card-title{font-size:18px;color:var(--ink);margin-bottom:8px;line-height:1.3;}
+  .card-excerpt{font-family:sans-serif;font-size:13px;color:var(--ink-mid);line-height:1.65;margin-bottom:14px;}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);}
+  .like-btn{display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-family:sans-serif;font-size:12px;color:var(--ink-light);transition:color .2s;padding:0;}
+  .like-btn.liked{color:var(--terra);}
+  .read-more{font-family:sans-serif;font-size:12px;color:var(--teal);}
+  .modal-overlay{position:fixed;inset:0;background:rgba(5,20,15,.78);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--parchment);border-radius:16px;max-width:920px;width:96%;max-height:92vh;overflow-y:auto;position:relative;}
+  .modal-img-wrap{width:100%;height:340px;overflow:hidden;border-radius:16px 16px 0 0;}
+  .modal-img-wrap img{width:100%;height:100%;object-fit:cover;}
+  .modal-img-ph{width:100%;height:180px;background:linear-gradient(135deg,#1D6E6E,#0A4040);border-radius:16px 16px 0 0;}
+  .modal-body{padding:32px 44px 40px;}
+  .modal-tag{font-family:sans-serif;font-size:10px;letter-spacing:1.2px;color:var(--terra);margin-bottom:10px;}
+  .modal-title{font-size:32px;color:var(--ink);margin-bottom:6px;line-height:1.2;}
+  .modal-date{font-family:sans-serif;font-size:12px;color:var(--ink-light);margin-bottom:24px;}
+  .modal-text{font-family:sans-serif;font-size:15px;line-height:1.9;color:var(--ink-mid);white-space:pre-wrap;}
+  .modal-close{position:absolute;top:14px;right:16px;background:rgba(0,0,0,.35);color:#fff;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;}
+  .admin-section{background:var(--ink);padding:54px 40px;}
+  .admin-inner{max-width:780px;margin:0 auto;}
+  .admin-section .eyebrow{color:rgba(255,255,255,.3);}
+  .admin-section h2{font-size:24px;color:#fff;margin-bottom:24px;}
+  .admin-tabs{display:flex;gap:0;margin-bottom:28px;border:1px solid rgba(255,255,255,.14);border-radius:10px;overflow:hidden;}
+  .admin-tab{flex:1;font-family:sans-serif;font-size:11px;letter-spacing:.6px;padding:10px 6px;background:transparent;color:rgba(255,255,255,.4);border:none;cursor:pointer;transition:all .2s;border-right:1px solid rgba(255,255,255,.1);}
+  .admin-tab:last-child{border-right:none;}
+  .admin-tab.active{background:rgba(255,255,255,.1);color:#fff;}
+  .admin-panel{display:none;}
+  .admin-panel.active{display:block;}
+  .field-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  .field-group label{font-family:sans-serif;font-size:11px;letter-spacing:.8px;color:rgba(255,255,255,.4);}
+  .field-group input,.field-group textarea,.field-group select{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:14px;color:#fff;resize:vertical;}
+  .field-group input[type="file"]{padding:8px;font-size:13px;color:rgba(255,255,255,.6);}
+  .field-group input::placeholder,.field-group textarea::placeholder{color:rgba(255,255,255,.28);}
+  .field-group textarea{min-height:110px;}
+  .mode-btns{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+  .mode-btn{font-family:sans-serif;font-size:11px;padding:5px 14px;border-radius:20px;cursor:pointer;transition:all .2s;}
+  .mode-btn.on{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;}
+  .mode-btn.off{border:1px solid rgba(255,255,255,.14);background:transparent;color:rgba(255,255,255,.45);}
+  .btn-submit{background:var(--terra);color:#fff;border:none;padding:12px 28px;border-radius:30px;font-family:sans-serif;font-size:13px;letter-spacing:.8px;cursor:pointer;transition:background .2s;margin-top:4px;}
+  .btn-submit:hover{background:#a84f22;}
+  .btn-danger{background:rgba(196,98,45,.18);color:#F0997B;border:1px solid rgba(196,98,45,.3);padding:10px 22px;border-radius:30px;font-family:sans-serif;font-size:13px;cursor:pointer;transition:all .2s;margin-top:4px;}
+  .btn-danger:hover{background:rgba(196,98,45,.32);color:#fff;}
+  .btn-save-html{background:rgba(29,110,110,.4);color:#7ECFCF;border:1px solid rgba(29,110,110,.5);padding:12px 28px;border-radius:30px;font-family:sans-serif;font-size:13px;letter-spacing:.8px;cursor:pointer;transition:all .2s;margin-top:4px;}
+  .btn-save-html:hover{background:rgba(29,110,110,.6);color:#fff;}
+  .html-frame{display:none;width:100%;height:300px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:#fff;margin-top:8px;}
+  .edit-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+  .edit-item-hdr{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;transition:background .2s;}
+  .edit-item-hdr:hover{background:rgba(255,255,255,.06);}
+  .edit-tag{font-family:sans-serif;font-size:10px;padding:3px 9px;border-radius:20px;color:#fff;}
+  .edit-chev{font-family:sans-serif;font-size:12px;color:rgba(255,255,255,.35);transition:transform .2s;}
+  .edit-chev.open{transform:rotate(180deg);}
+  .edit-body{display:none;padding:16px;border-top:1px solid rgba(255,255,255,.08);}
+  .edit-body.open{display:block;}
+  .brand-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:20px 22px;margin-bottom:18px;}
+  .brand-card h3{font-family:sans-serif;font-size:12px;letter-spacing:.8px;color:rgba(255,255,255,.45);margin-bottom:6px;}
+  .brand-card p{font-family:sans-serif;font-size:13px;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.6;}
+  .hero-thumb-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .hero-thumb{position:relative;width:80px;height:56px;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.15);}
+  .hero-thumb img{width:100%;height:100%;object-fit:cover;}
+  .hero-thumb-rm{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;width:18px;height:18px;border-radius:50%;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .pmgr-item{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .pmgr-item span{flex:1;font-family:sans-serif;font-size:13px;color:rgba(255,255,255,.65);}
+  .pmgr-item select{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:6px;padding:5px 10px;font-family:sans-serif;font-size:12px;color:#fff;}
+  .save-bar{background:rgba(29,110,110,.15);border:1px solid rgba(29,110,110,.3);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+  .save-bar p{font-family:sans-serif;font-size:13px;color:rgba(255,255,255,.6);line-height:1.5;}
+  footer{background:var(--teal-dark);padding:38px 40px;text-align:center;}
+  .footer-logo-wrap{width:52px;height:52px;border-radius:50%;overflow:hidden;margin:0 auto 12px;background:var(--parchment);display:flex;align-items:center;justify-content:center;}
+  .footer-logo-wrap img{width:100%;height:100%;object-fit:cover;display:none;}
+  .footer-name{font-size:20px;font-family:Georgia,serif;font-style:italic;color:rgba(255,255,255,.55);margin-bottom:6px;}
+  footer p{font-family:sans-serif;font-size:12px;color:rgba(255,255,255,.32);}
+  @media(max-width:640px){
+    nav{padding:12px 18px;}
+    .prayer-section,.updates-section,.admin-section{padding:40px 18px;}
+    .updates-grid{grid-template-columns:1fr;}
+    .section-header{flex-direction:column;align-items:flex-start;}
+    .modal-body{padding:20px 20px 28px;}
+    .modal-title{font-size:24px;}
+    .admin-tab{font-size:10px;padding:10px 4px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <img class="nav-logo-img" id="navLogoImg" alt="R&C">
+    <div class="nav-logo-fb" id="navLogoFb">R&amp;C</div>
+    <span class="nav-title">Rees &amp; Company</span>
+  </div>
+  <div class="nav-links">
+    <a onclick="goto('updates')">Updates</a>
+    <a onclick="goto('prayer')">Prayer</a>
+    <a onclick="goto('admin')">Admin</a>
+  </div>
+</nav>
+
+<section class="hero" id="home">
+  <div id="heroSlides"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-logo-wrap">
+      <img id="heroLogoImg" alt="R&C">
+      <span id="heroLogoTxt" style="font-size:18px;font-weight:700;color:var(--teal-dark);">R&amp;C</span>
+    </div>
+    <h1>Rees &amp; Company</h1>
+    <p class="hero-tagline">Making a Discipleship Community that Makes Disciples</p>
+    <div class="hero-btns">
+      <span class="btn btn-primary" onclick="goto('updates')">Latest Updates</span>
+      <span class="btn btn-outline" onclick="goto('prayer')">Prayer Board</span>
+    </div>
+  </div>
+  <div class="hero-dots" id="heroDots"></div>
+  <div class="scroll-hint"><span>SCROLL</span><div class="scroll-arrow"></div></div>
+</section>
+
+<section class="prayer-section" id="prayer">
+  <div class="prayer-inner">
+    <p class="eyebrow">LIVE BOARD</p>
+    <h2>Current Prayer Requests</h2>
+    <p class="prayer-meta" id="prayerMeta">From the latest update</p>
+    <div class="prayer-list" id="prayerList"></div>
+  </div>
+</section>
+
+<section class="updates-section" id="updates">
+  <div class="section-header">
+    <div>
+      <p style="font-family:sans-serif;font-size:10px;letter-spacing:2.5px;color:var(--ink-light);margin-bottom:6px;">FIELD UPDATES</p>
+      <h2>From the Field</h2>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterBy('all',this)">All</button>
+      <button class="filter-tab" onclick="filterBy('pray',this)">#pray</button>
+      <button class="filter-tab" onclick="filterBy('story',this)">#story</button>
+      <button class="filter-tab" onclick="filterBy('ministry',this)">#ministry</button>
+    </div>
+  </div>
+  <div class="updates-grid" id="updatesGrid"></div>
+</section>
+
+<div class="modal-overlay" id="modalOverlay" onclick="maybeClose(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalTop"></div>
+    <div class="modal-body">
+      <p class="modal-tag" id="mTag"></p>
+      <h2 class="modal-title" id="mTitle"></h2>
+      <p class="modal-date" id="mDate"></p>
+      <div id="mContent"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:28px;padding-top:18px;border-top:1px solid var(--border);">
+        <button class="like-btn" id="mLikeBtn" onclick="toggleModalLike()">
+          <span id="mLikeIcon">♡</span>&nbsp;<span id="mLikeCount">0</span> prayers sent
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="admin-section" id="admin">
+  <div class="admin-inner">
+    <p class="eyebrow">ADMIN</p>
+    <h2>Control Panel</h2>
+    <div id="adminGate">
+      <p style="font-family:sans-serif;font-size:14px;color:rgba(255,255,255,.45);margin-bottom:14px;">Enter your password to unlock.</p>
+      <input type="password" id="adminPass" placeholder="Password" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:10px 16px;color:#fff;font-family:sans-serif;font-size:14px;width:220px;display:block;margin:0 auto 12px;">
+      <button class="btn-submit" onclick="checkPass()">Unlock</button>
+    </div>
+    <div id="adminUnlocked" style="display:none;">
+      <div class="save-bar">
+        <p>⬇ When you're done making changes, download a fresh copy of this page with everything baked in.</p>
+        <button class="btn-save-html" onclick="downloadHTML()">Download Updated Site</button>
+      </div>
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchTab('post')">✎ Post</button>
+        <button class="admin-tab" onclick="switchTab('edit')">✏ Edit</button>
+        <button class="admin-tab" onclick="switchTab('hero')">🖼 Hero</button>
+        <button class="admin-tab" onclick="switchTab('brand')">◈ Logo</button>
+        <button class="admin-tab" onclick="switchTab('prayer')">✦ Prayer</button>
+      </div>
+
+      <!-- POST -->
+      <div class="admin-panel active" id="tabPost">
+        <div class="field-group"><label>TITLE</label><input type="text" id="nTitle" placeholder="e.g. Conakry Guinea — November"></div>
+        <div class="field-group"><label>DATE</label><input type="date" id="nDate"></div>
+        <div class="field-group"><label>TAG</label>
+          <select id="nTag"><option value="story">#story</option><option value="ministry">#ministry</option><option value="pray">#pray</option></select>
+        </div>
+        <div class="field-group"><label>HEADER IMAGE</label><input type="file" id="nImg" accept="image/*"></div>
+        <div class="field-group">
+          <label>CONTENT TYPE</label>
+          <div class="mode-btns">
+            <button type="button" class="mode-btn on" id="mBtnWrite" onclick="setPostMode('write')">✎ Write</button>
+            <button type="button" class="mode-btn off" id="mBtnHtml" onclick="setPostMode('html')">⬆ HTML File</button>
+            <button type="button" class="mode-btn off" id="mBtnLink" onclick="setPostMode('link')">🔗 External Link</button>
+          </div>
+          <textarea id="nContent" placeholder="Hey friends and family,&#10;&#10;Write your full update here..."></textarea>
+          <div id="nHtmlWrap" style="display:none;">
+            <input type="file" accept=".html,.htm" onchange="loadHtmlFile(this,'post')" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:8px;font-family:sans-serif;font-size:13px;color:rgba(255,255,255,.6);width:100%;">
+            <p id="nHtmlLabel" style="display:none;font-family:sans-serif;font-size:12px;color:rgba(255,255,255,.4);margin-top:6px;">✓ File loaded</p>
+            <iframe id="nHtmlFrame" class="html-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+          </div>
+          <div id="nLinkWrap" style="display:none;">
+            <input type="url" id="nLink" placeholder="https://sway.office.com/your-update-link">
+            <p style="font-family:sans-serif;font-size:12px;color:rgba(255,255,255,.35);margin-top:6px;">Visitors open this URL when they click "Read more". Great for Microsoft Sway or Notion.</p>
+          </div>
+        </div>
+        <div class="field-group"><label>PRAYER REQUESTS (one per line)</label>
+          <textarea id="nPrayers" placeholder="Safe travels&#10;Wisdom for upcoming meetings"></textarea>
+        </div>
+        <button class="btn-submit" onclick="postUpdate()">Post Update</button>
+      </div>
+
+      <!-- EDIT -->
+      <div class="admin-panel" id="tabEdit">
+        <p style="font-family:sans-serif;font-size:13px;color:rgba(255,255,255,.4);margin-bottom:18px;">Click an update to expand and edit it.</p>
+        <div id="editList"></div>
+      </div>
+
+      <!-- HERO -->
+      <div class="admin-panel" id="tabHero">
+        <div class="brand-card">
+          <h3>HERO SLIDESHOW PHOTOS</h3>
+          <p>Add photos one at a time or in batches (max 6 total). Remove individual photos with ✕. Hit "Download Updated Site" when done.</p>
+          <input type="file" id="heroUpload" accept="image/*" multiple onchange="handleHeroUpload(this)">
+          <div class="hero-thumb-strip" id="heroThumbStrip"></div>
+        </div>
+      </div>
+
+      <!-- LOGO -->
+      <div class="admin-panel" id="tabBrand">
+        <div class="brand-card">
+          <h3>LOGO</h3>
+          <p>Shown in nav, hero, and footer. Upload your R&amp;C shepherd logo here.</p>
+          <input type="file" id="logoUpload" accept="image/*" onchange="handleLogoUpload(this)">
+          <div id="logoPrevWrap" style="margin-top:14px;display:none;">
+            <img id="logoPrev" style="width:80px;height:80px;border-radius:50%;object-fit:cover;">
+          </div>
+        </div>
+      </div>
+
+      <!-- PRAYER -->
+      <div class="admin-panel" id="tabPrayer">
+        <p style="font-family:sans-serif;font-size:13px;color:rgba(255,255,255,.4);margin-bottom:18px;">Update prayer statuses for the most recent update.</p>
+        <div id="prayerMgrList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo-wrap" id="ftLogoWrap">
+    <img id="ftLogoImg" alt="R&C">
+    <span id="ftLogoTxt" style="font-size:14px;font-weight:700;color:var(--teal-dark);">R&amp;C</span>
+  </div>
+  <p class="footer-name">Rees &amp; Company</p>
+  <p>Making a Discipleship Community that Makes Disciples · <span id="ftYear"></span></p>
+</footer>
+
+<script id="dataStore">
+/* ===== EMBEDDED DATA — edited by admin and re-saved via Download ===== */
+var RC = {
+  logo: null,
+  heroPhotos: [],
+  updates: [
+    {title:'Conakry Guinea',date:'2025-11-12',tag:'ministry',
+     excerpt:'This month I am doing a vision trip through Guinea and Abidjan before a strategy meeting in Kenya.',
+     content:'Hey friends and family,\n\nThis month I am doing a vision trip through Guinea and Abidjan before a strategy meeting in Kenya. It has been incredible to see the hunger for the Gospel in these regions.\n\nWe met with local church leaders in Conakry who are eager to plant disciple-making communities in unreached villages. The conversations were rich and full of faith.\n\nThank you for your continued prayers — they are felt.',
+     type:'write',link:null,prayers:['Safe travel through Guinea and Abidjan','Fruitful strategy meeting in Kenya','Unity among local church leaders'],
+     prayerStatuses:['praying','praying','praying'],likes:14,liked:false,imgData:null},
+    {title:'Merry Christmas!',date:'2025-12-26',tag:'story',
+     excerpt:'Wishing you the happiest of holidays worshipping Jesus and thanking God for salvation through Christ.',
+     content:'Hey Friends and Family,\n\nWishing you the happiest of holidays worshipping Jesus and thanking God for salvation through Christ. What a gift He is.\n\nThis season I\'ve been reflecting on the nations — every tribe, tongue, and people gathered around the throne one day.',
+     type:'write',link:null,prayers:['Joy and peace for every family','Continued vision for the unreached'],
+     prayerStatuses:['answered','praying'],likes:31,liked:false,imgData:null},
+    {title:'Daytona Beach!',date:'2025-11-05',tag:'ministry',
+     excerpt:'Would love your prayers for a week long event I have been preparing for.',
+     content:'Hey friends and family,\n\nWould love your prayers for a week long event. We will be working with the Body there to cast vision for multiplying disciples along the Eastern Seaboard.',
+     type:'write',link:null,prayers:['Successful week-long event','Hearts open to discipleship vision'],
+     prayerStatuses:['answered','trust'],likes:9,liked:false,imgData:null},
+    {title:'Houston For the Nations',date:'2025-03-20',tag:'story',
+     excerpt:'I hope you all are continuing to grow in your love for Christ and making disciples of every nation.',
+     content:'Hey friends and family,\n\nI hope you all are well and continuing to grow in your love for Christ and making disciples of every nation.\n\nHouston has been a remarkable hub — gathering people from dozens of nations to train them to go back as disciple-makers.',
+     type:'write',link:null,prayers:['Growth in Houston gathering','People to go back to their nations'],
+     prayerStatuses:['answered','trust'],likes:22,liked:false,imgData:null},
+    {title:'Africa: Every People Group Engaged',date:'2025-02-10',tag:'ministry',
+     excerpt:'A job announcement and major update on what God is doing across the continent.',
+     content:'Hey friends and family,\n\nI am thrilled to share some major news. A new initiative is launching to see every people group in Africa engaged through indigenous disciple-making movements.\n\nI have been asked to play a key role — humbled and excited.',
+     type:'write',link:null,prayers:['Clarity on role and next steps','Funding provision','The right team to form'],
+     prayerStatuses:['answered','praying','praying'],likes:37,liked:false,imgData:null},
+  ]
+};
+</script>
+
+<script>
+/* ===== RUNTIME ===== */
+const PASS = 'rees2025';
+let currentFilter = 'all', openIdx = null;
+let slideIdx = 0, slideTimer = null;
+let postMode = 'write', postHtmlContent = null;
+let editHtmlContent = {};
+
+/* helpers */
+function goto(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
+function fmtDate(d){ return new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
+function tagColor(t){ return {pray:'#7F77DD',ministry:'#1D6E6E',story:'#C4622D'}[t]||'#888'; }
+
+/* ── SLIDESHOW ── */
+function buildSlides(){
+  clearInterval(slideTimer); slideIdx=0;
+  const con=document.getElementById('heroSlides'), dots=document.getElementById('heroDots');
+  con.innerHTML=''; dots.innerHTML='';
+  const src = RC.heroPhotos.length ? RC.heroPhotos : ['grad0','grad1','grad2','grad3','grad4'];
+  const grads=['linear-gradient(160deg,#8B4A0A 0%,#C4622D 35%,#1A1200 100%)','linear-gradient(160deg,#0A2A0A 0%,#1A4A1A 40%,#2A3A0A 100%)','linear-gradient(160deg,#1A3A0A 0%,#4A7A1A 50%,#8B6A2A 100%)','linear-gradient(160deg,#0A1A3A 0%,#0A3A3A 40%,#1A4A4A 100%)','linear-gradient(160deg,#1A2A2A 0%,#2A4A4A 40%,#3A5A5A 100%)'];
+  src.forEach((s,i)=>{
+    const el=document.createElement('div');
+    el.className='hero-slide'+(i===0?' active':'');
+    if(RC.heroPhotos.length) el.style.backgroundImage=`url(${s})`; else el.style.background=grads[i]||grads[0];
+    con.appendChild(el);
+    const d=document.createElement('div');
+    d.className='hero-dot'+(i===0?' active':'');
+    d.onclick=()=>goSlide(i); dots.appendChild(d);
+  });
+  slideTimer=setInterval(()=>goSlide(slideIdx+1),5000);
+}
+function goSlide(n){
+  const sl=document.querySelectorAll('.hero-slide'),dt=document.querySelectorAll('.hero-dot');
+  if(!sl.length||!dt.length) return;
+  if(sl[slideIdx]) sl[slideIdx].classList.remove('active');
+  if(dt[slideIdx]) dt[slideIdx].classList.remove('active');
+  slideIdx=(n+sl.length)%sl.length;
+  if(sl[slideIdx]) sl[slideIdx].classList.add('active');
+  if(dt[slideIdx]) dt[slideIdx].classList.add('active');
+}
+
+/* ── LOGO ── */
+function applyLogo(src){
+  ['navLogoImg','heroLogoImg','ftLogoImg'].forEach(id=>{ const el=document.getElementById(id); el.src=src; el.style.display='block'; });
+  document.getElementById('navLogoFb').style.display='none';
+  document.getElementById('heroLogoTxt').style.display='none';
+  document.getElementById('ftLogoTxt').style.display='none';
+}
+function handleLogoUpload(input){
+  const f=input.files[0]; if(!f) return;
+  readFile(f, src=>{
+    RC.logo=src; applyLogo(src);
+    document.getElementById('logoPrev').src=src;
+    document.getElementById('logoPrevWrap').style.display='block';
+  });
+}
+
+/* ── HERO PHOTOS ── */
+function handleHeroUpload(input){
+  const files=Array.from(input.files); if(!files.length) return;
+  const slots=6-RC.heroPhotos.length;
+  if(slots<=0){ alert('You already have 6 photos. Remove one first.'); input.value=''; return; }
+  const toAdd=files.slice(0,slots);
+  if(files.length>slots) alert(`Only ${slots} slot(s) free — adding first ${slots}.`);
+  let loaded=0;
+  toAdd.forEach(f=>{
+    readFile(f, src=>{
+      RC.heroPhotos.push(src); loaded++;
+      if(loaded===toAdd.length){ input.value=''; buildSlides(); renderHeroThumbs(); }
+    });
+  });
+}
+function renderHeroThumbs(){
+  const strip=document.getElementById('heroThumbStrip'); if(!strip) return;
+  strip.innerHTML='';
+  RC.heroPhotos.forEach((p,i)=>{
+    const w=document.createElement('div'); w.className='hero-thumb';
+    w.innerHTML=`<img src="${p}"><button class="hero-thumb-rm" onclick="removeHeroPhoto(${i})">✕</button>`;
+    strip.appendChild(w);
+  });
+}
+function removeHeroPhoto(i){
+  RC.heroPhotos.splice(i,1);
+  buildSlides(); renderHeroThumbs();
+}
+
+/* ── PRAYER BOARD (public read-only) ── */
+function renderPrayerBoard(){
+  const u=RC.updates[0]; if(!u) return;
+  document.getElementById('prayerMeta').textContent='From: '+u.title+' · '+fmtDate(u.date);
+  const list=document.getElementById('prayerList'); list.innerHTML='';
+  const cols={praying:'#BA7517',answered:'#1D9E75',trust:'#7F77DD'};
+  const labels={praying:'Praying',answered:'Answered! 🙌',trust:'Trust & Wait'};
+  (u.prayers||[]).forEach((p,i)=>{
+    const s=(u.prayerStatuses||[])[i]||'praying';
+    const el=document.createElement('div'); el.className='prayer-item';
+    el.innerHTML=`<div class="prayer-dot" style="background:${cols[s]}"></div>
+      <span class="prayer-text">${p}</span>
+      <span class="prayer-badge status-${s}">${labels[s]}</span>`;
+    list.appendChild(el);
+  });
+}
+
+/* ── PRAYER MGR (admin) ── */
+function renderPrayerMgr(){
+  const l=document.getElementById('prayerMgrList'); l.innerHTML='';
+  const u=RC.updates[0];
+  if(!u||!u.prayers||!u.prayers.length){ l.innerHTML='<p style="font-family:sans-serif;font-size:13px;color:rgba(255,255,255,.35)">No prayers yet.</p>'; return; }
+  u.prayers.forEach((p,i)=>{
+    const s=(u.prayerStatuses||[])[i]||'praying';
+    const d=document.createElement('div'); d.className='pmgr-item';
+    d.innerHTML=`<span>${p}</span>
+      <select onchange="setPrayerStatus(${i},this.value)">
+        <option value="praying" ${s==='praying'?'selected':''}>Praying</option>
+        <option value="answered" ${s==='answered'?'selected':''}>Answered</option>
+        <option value="trust" ${s==='trust'?'selected':''}>Trust & Wait</option>
+      </select>`;
+    l.appendChild(d);
+  });
+}
+function setPrayerStatus(i,v){
+  if(!RC.updates[0].prayerStatuses) RC.updates[0].prayerStatuses=RC.updates[0].prayers.map(()=>'praying');
+  RC.updates[0].prayerStatuses[i]=v; renderPrayerBoard();
+}
+
+/* ── UPDATES GRID ── */
+function renderUpdates(){
+  const grid=document.getElementById('updatesGrid'); grid.innerHTML='';
+  const list=currentFilter==='all'?RC.updates:RC.updates.filter(u=>u.tag===currentFilter);
+  list.forEach(u=>{
+    const ri=RC.updates.indexOf(u);
+    const isExt=u.type==='link'&&u.link;
+    const card=document.createElement('div'); card.className='update-card'; card.onclick=()=>openUpdate(ri);
+    card.innerHTML=`<div class="card-img-wrap">
+        ${u.imgData?`<img src="${u.imgData}" alt="${u.title}" loading="lazy">`:`<div class="card-img-ph">✦</div>`}
+        <span class="card-tag" style="background:${tagColor(u.tag)}">#${u.tag}</span>
+        ${isExt?`<span class="card-ext">↗ External</span>`:''}
+      </div>
+      <div class="card-body">
+        <p class="card-date">${fmtDate(u.date)}</p>
+        <h3 class="card-title">${u.title}</h3>
+        <p class="card-excerpt">${u.excerpt}</p>
+        <div class="card-footer">
+          <button class="like-btn${u.liked?' liked':''}" onclick="event.stopPropagation();toggleLike(${ri})">
+            <span class="like-icon">${u.liked?'♥':'♡'}</span> <span>${u.likes}</span>
+          </button>
+          <span class="read-more">${isExt?'Open update ↗':'Read more →'}</span>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+function filterBy(tag,btn){
+  currentFilter=tag;
+  document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); renderUpdates();
+}
+function toggleLike(i){
+  RC.updates[i].liked=!RC.updates[i].liked; RC.updates[i].likes+=RC.updates[i].liked?1:-1;
+  renderUpdates(); if(openIdx===i) syncModalLike();
+}
+function openUpdate(i){
+  if(RC.updates[i].type==='link'&&RC.updates[i].link){ window.open(RC.updates[i].link,'_blank'); return; }
+  openModal(i);
+}
+
+/* ── MODAL ── */
+function openModal(i){
+  openIdx=i; const u=RC.updates[i];
+  document.getElementById('mTag').textContent='#'+u.tag;
+  document.getElementById('mTitle').textContent=u.title;
+  document.getElementById('mDate').textContent=fmtDate(u.date);
+  document.getElementById('modalTop').innerHTML=u.imgData
+    ?`<div class="modal-img-wrap"><img src="${u.imgData}" alt="${u.title}"></div>`
+    :`<div class="modal-img-ph"></div>`;
+  const mc=document.getElementById('mContent');
+  if(u.type==='html'){
+    mc.innerHTML=`<iframe srcdoc="${u.content.replace(/"/g,'&quot;')}" style="width:100%;height:560px;border:none;border-radius:8px;" sandbox="allow-scripts allow-same-origin"></iframe>`;
+  } else { mc.className='modal-text'; mc.textContent=u.content; }
+  syncModalLike();
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function syncModalLike(){
+  if(openIdx===null) return; const u=RC.updates[openIdx];
+  document.getElementById('mLikeBtn').className='like-btn'+(u.liked?' liked':'');
+  document.getElementById('mLikeIcon').textContent=u.liked?'♥':'♡';
+  document.getElementById('mLikeCount').textContent=u.likes;
+}
+function toggleModalLike(){ if(openIdx!==null) toggleLike(openIdx); }
+function maybeClose(e){ if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; openIdx=null; }
+
+/* ── ADMIN ── */
+function checkPass(){
+  if(document.getElementById('adminPass').value===PASS){
+    document.getElementById('adminGate').style.display='none';
+    document.getElementById('adminUnlocked').style.display='block';
+    renderEditList(); renderPrayerMgr(); renderHeroThumbs();
+    if(RC.logo){ applyLogo(RC.logo); document.getElementById('logoPrev').src=RC.logo; document.getElementById('logoPrevWrap').style.display='block'; }
+  } else { alert('Incorrect password'); }
+}
+function switchTab(name){
+  const tabs=['post','edit','hero','brand','prayer'];
+  document.querySelectorAll('.admin-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===name));
+  document.querySelectorAll('.admin-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('active');
+}
+
+/* ── POST ── */
+function setPostMode(m){
+  postMode=m;
+  ['write','html','link'].forEach(n=>{
+    document.getElementById('mBtn'+n.charAt(0).toUpperCase()+n.slice(1)).className='mode-btn '+(n===m?'on':'off');
+  });
+  document.getElementById('nContent').style.display=m==='write'?'block':'none';
+  document.getElementById('nHtmlWrap').style.display=m==='html'?'block':'none';
+  document.getElementById('nLinkWrap').style.display=m==='link'?'block':'none';
+}
+function loadHtmlFile(input,ctx){
+  const f=input.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    if(ctx==='post'){
+      postHtmlContent=e.target.result;
+      document.getElementById('nHtmlFrame').srcdoc=postHtmlContent;
+      document.getElementById('nHtmlFrame').style.display='block';
+      document.getElementById('nHtmlLabel').style.display='block';
+    } else {
+      editHtmlContent[ctx]=e.target.result;
+      const fr=document.getElementById('eHtmlFrame'+ctx);
+      if(fr){ fr.srcdoc=e.target.result; fr.style.display='block'; }
+    }
+  };
+  r.readAsText(f);
+}
+function postUpdate(){
+  const title=document.getElementById('nTitle').value.trim();
+  const date=document.getElementById('nDate').value;
+  if(!title||!date){ alert('Please fill in title and date.'); return; }
+  const tag=document.getElementById('nTag').value;
+  const prayers=document.getElementById('nPrayers').value.trim().split('\n').filter(Boolean);
+  let content='',excerpt='',type=postMode,link=null;
+  if(postMode==='write'){
+    content=document.getElementById('nContent').value.trim();
+    excerpt=content.substring(0,130).replace(/\n/g,' ')+'...';
+  } else if(postMode==='html'){
+    if(!postHtmlContent){ alert('Please upload an HTML file.'); return; }
+    content=postHtmlContent; excerpt='Click to read the full update →';
+  } else {
+    link=document.getElementById('nLink').value.trim();
+    if(!link){ alert('Please enter a link URL.'); return; }
+    content=''; excerpt='Click to open this update →';
+  }
+  const imgFile=document.getElementById('nImg').files[0];
+  function finish(imgData){
+    RC.updates.unshift({title,date,tag,excerpt,content,type,link,prayers,prayerStatuses:prayers.map(()=>'praying'),likes:0,liked:false,imgData:imgData||null});
+    renderUpdates(); renderPrayerBoard(); renderEditList(); renderPrayerMgr();
+    postHtmlContent=null; setPostMode('write');
+    ['nTitle','nDate','nContent','nPrayers','nLink'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('nImg').value='';
+    document.getElementById('nHtmlFrame').style.display='none';
+    document.getElementById('nHtmlLabel').style.display='none';
+    alert('Update posted! Remember to download the updated site.');
+  }
+  if(imgFile){ readFile(imgFile, finish); } else { finish(null); }
+}
+
+/* ── EDIT LIST ── */
+function renderEditList(){
+  const el=document.getElementById('editList'); el.innerHTML='';
+  if(!RC.updates.length){ el.innerHTML='<p style="font-family:sans-serif;font-size:13px;color:rgba(255,255,255,.35)">No updates yet.</p>'; return; }
+  RC.updates.forEach((u,i)=>{
+    const wrap=document.createElement('div'); wrap.className='edit-item';
+    const isHtml=u.type==='html', isLink=u.type==='link';
+    wrap.innerHTML=`
+      <div class="edit-item-hdr" onclick="toggleEdit(${i})">
+        <div style="flex:1">
+          <p style="font-size:14px;color:#fff;">${u.title}</p>
+          <p style="font-family:sans-serif;font-size:11px;color:rgba(255,255,255,.38);">${fmtDate(u.date)}</p>
+        </div>
+        <span class="edit-tag" style="background:${tagColor(u.tag)}">#${u.tag}</span>
+        <span class="edit-chev" id="eChev${i}">▾</span>
+      </div>
+      <div class="edit-body" id="eBody${i}">
+        <div class="field-group"><label>TITLE</label><input id="eT${i}" value="${u.title.replace(/"/g,'&quot;')}"></div>
+        <div class="field-group"><label>DATE</label><input type="date" id="eD${i}" value="${u.date}"></div>
+        <div class="field-group"><label>TAG</label>
+          <select id="eG${i}">
+            <option value="story" ${u.tag==='story'?'selected':''}>story</option>
+            <option value="ministry" ${u.tag==='ministry'?'selected':''}>ministry</option>
+            <option value="pray" ${u.tag==='pray'?'selected':''}>pray</option>
+          </select>
+        </div>
+        <div class="field-group"><label>HEADER IMAGE (upload to replace)</label>
+          <input type="file" accept="image/*" onchange="setEditImg(this,${i})">
+          ${u.imgData?`<img src="${u.imgData}" style="width:80px;height:56px;object-fit:cover;border-radius:6px;margin-top:8px;">`:''}
+        </div>
+        <div class="field-group"><label>CONTENT</label>
+          ${isLink
+            ?`<input type="url" id="eL${i}" value="${(u.link||'').replace(/"/g,'&quot;')}" placeholder="https://...">`
+            :isHtml
+              ?`<p style="font-family:sans-serif;font-size:12px;color:rgba(255,255,255,.4);margin-bottom:8px;">HTML file. Upload a new one to replace:</p>
+                <input type="file" accept=".html,.htm" onchange="loadHtmlFile(this,${i})">
+                <iframe id="eHtmlFrame${i}" class="html-frame" sandbox="allow-scripts allow-same-origin"></iframe>`
+              :`<textarea id="eC${i}" style="min-height:130px;">${u.content.replace(/</g,'&lt;')}</textarea>`
+          }
+        </div>
+        <div class="field-group"><label>PRAYER REQUESTS (one per line)</label>
+          <textarea id="eP${i}">${(u.prayers||[]).join('\n')}</textarea>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+          <button class="btn-submit" onclick="saveEdit(${i})">Save Changes</button>
+          <button class="btn-danger" onclick="deleteUpdate(${i})">Delete</button>
+        </div>
+      </div>`;
+    el.appendChild(wrap);
+  });
+}
+function toggleEdit(i){
+  document.getElementById('eBody'+i).classList.toggle('open');
+  document.getElementById('eChev'+i).classList.toggle('open');
+}
+function setEditImg(input,i){
+  const f=input.files[0]; if(!f) return;
+  readFile(f, src=>{ RC.updates[i].imgData=src; renderEditList(); renderUpdates(); });
+}
+function saveEdit(i){
+  RC.updates[i].title=document.getElementById('eT'+i).value.trim();
+  RC.updates[i].date=document.getElementById('eD'+i).value;
+  RC.updates[i].tag=document.getElementById('eG'+i).value;
+  if(RC.updates[i].type==='link'){
+    RC.updates[i].link=document.getElementById('eL'+i).value.trim();
+  } else if(RC.updates[i].type==='html'){
+    if(editHtmlContent[i]) RC.updates[i].content=editHtmlContent[i];
+  } else {
+    const c=document.getElementById('eC'+i).value;
+    RC.updates[i].content=c;
+    RC.updates[i].excerpt=c.substring(0,130).replace(/\n/g,' ')+'...';
+  }
+  const rawP=document.getElementById('eP'+i).value.trim().split('\n').filter(Boolean);
+  RC.updates[i].prayers=rawP;
+  if(!RC.updates[i].prayerStatuses||RC.updates[i].prayerStatuses.length!==rawP.length)
+    RC.updates[i].prayerStatuses=rawP.map(()=>'praying');
+  renderUpdates(); renderPrayerBoard(); renderEditList(); renderPrayerMgr();
+  alert('Saved! Remember to download the updated site.');
+}
+function deleteUpdate(i){
+  if(!confirm(`Delete "${RC.updates[i].title}"?`)) return;
+  RC.updates.splice(i,1); renderUpdates(); renderPrayerBoard(); renderEditList(); renderPrayerMgr();
+}
+
+/* ── FILE READER HELPER ── */
+function readFile(file, cb){
+  const r=new FileReader(); r.onload=e=>cb(e.target.result); r.readAsDataURL(file);
+}
+
+/* ── DOWNLOAD UPDATED HTML ── */
+function downloadHTML(){
+  // Snapshot RC data into the script tag and re-serialize the whole page
+  const dataScript = `
+var RC = ${JSON.stringify(RC, null, 2)};
+`;
+  const html = document.documentElement.outerHTML;
+  // Replace the contents of the dataStore script tag
+  const updated = html.replace(
+    /(<script id="dataStore"[^>]*>)([\s\S]*?)(<\/script>)/,
+    `<script id="dataStore">\n/* ===== EMBEDDED DATA — edited by admin and re-saved via Download ===== */${dataScript}<\/script>`
+  );
+  const blob = new Blob([updated], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'rees-and-company.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ── INIT ── */
+document.getElementById('ftYear').textContent = new Date().getFullYear();
+buildSlides();
+if(RC.logo) applyLogo(RC.logo);
+renderPrayerBoard();
+renderUpdates();
+</script>
+</body>
+</html>
